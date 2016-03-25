@@ -35,6 +35,9 @@
         function setTemperature() {
             window.external.notify("temperature=" + document.getElementById('setTempId').value + "\0");
         }
+        function enableSpeechService(){
+            window.external.notify("enable_speech");
+        }
         function modifyTempInput(mode) {
             var tempInput = document.getElementById('setTempId').value;
             if (tempInput != "") {
@@ -107,6 +110,7 @@
                         </div>
                     </div>
                 </div>
+                <button type="button" onclick="enableSpeechService()" class="btn btn-default">Enable Speech Service</button>
             </div>
         </div>
     </div>

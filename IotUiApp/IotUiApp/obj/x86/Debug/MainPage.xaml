@@ -9,7 +9,6 @@
 
     <Viewbox>
         <WebView x:ConnectionId='1' x:Name="MyWebView"                               HorizontalAlignment="Left" Height="1070" Margin="0,10,0,0" VerticalAlignment="Top" Width="1910"/>
-
     </Viewbox>
 </Page>
 
