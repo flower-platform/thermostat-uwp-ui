@@ -1,4 +1,20 @@
-﻿using System;
+﻿/* license-start
+ * 
+ * Copyright (C) 2008 - 2015 Crispico Resonate, <http://www.crispico.com/>.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation version 3.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details, at <http://www.gnu.org/licenses/>.
+ * 
+ * license-end
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Windows.Foundation;
@@ -9,6 +25,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.Media.SpeechSynthesis;
 using System.Diagnostics;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
 
 namespace IotUiApp
 {
@@ -17,14 +35,27 @@ namespace IotUiApp
         private static SpeechRecognizer m_recognizer;
         // Keep track of whether the recognizer is currently listening for user input
         private static bool m_isListening = false;
-        private static int s_continuousRecognitionAutoStopSilenceTimeout = 3600;
+        private static int s_continuousRecognitionAutoStopSilenceTimeout = 100;
         private static uint s_maxRecognitionResultAlternates = 3;
-        private static async void init()
+        private static void init()
         {
             m_recognizer = new SpeechRecognizer();
+            m_recognizer.Timeouts.BabbleTimeout = System.TimeSpan.FromSeconds(120.0);
+            m_recognizer.Timeouts.EndSilenceTimeout = System.TimeSpan.FromSeconds(120.0);
+            m_recognizer.Timeouts.InitialSilenceTimeout = System.TimeSpan.FromSeconds(120.0);
+            Debug.WriteLine("print1");
             SpeechRecognitionTopicConstraint topicConstraint = new SpeechRecognitionTopicConstraint(SpeechRecognitionScenario.Dictation, "Development");
             m_recognizer.Constraints.Add(topicConstraint);
-            SpeechRecognitionCompilationResult result = await m_recognizer.CompileConstraintsAsync();   // Required
+
+            IAsyncOperation<SpeechRecognitionCompilationResult> asyncResult = m_recognizer.CompileConstraintsAsync();
+            asyncResult.Completed += CompileConstraintsCompletedHandler;
+            Debug.WriteLine("print2");
+        }
+
+        private static void CompileConstraintsCompletedHandler(IAsyncOperation<SpeechRecognitionCompilationResult> asyncInfo, AsyncStatus asyncStatus)
+        {
+            Debug.WriteLine("print3");
+            SpeechRecognitionCompilationResult result = asyncInfo.GetResults();
 
             if (result.Status != SpeechRecognitionResultStatus.Success)
             {
@@ -35,7 +66,12 @@ namespace IotUiApp
             m_recognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout = System.TimeSpan.FromSeconds(s_continuousRecognitionAutoStopSilenceTimeout);
             m_recognizer.ContinuousRecognitionSession.Completed += OnContinuousRecognitionSessionCompletedHandler;
             m_recognizer.ContinuousRecognitionSession.ResultGenerated += OnContinuousRecognitionSessionResultGeneratedHandler;
+
+            startListening();
+            Debug.WriteLine("print4");
         }
+
+
 
         /// <summary>
         /// Handle events fired when error conditions occur, such as the microphone becoming unavailable, or if
@@ -43,15 +79,33 @@ namespace IotUiApp
         /// </summary>
         /// <param name="sender">The continuous recognition session</param>
         /// <param name="args">The state of the recognizer</param>
-        private static async void OnContinuousRecognitionSessionCompletedHandler(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionCompletedEventArgs args)
+        private static void OnContinuousRecognitionSessionCompletedHandler(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionCompletedEventArgs args)
         {
-            if (args.Status != SpeechRecognitionResultStatus.Success)
+
+            if (args.Status == SpeechRecognitionResultStatus.Unknown)
             {
                 m_isListening = false;
-                //TO DO ANCA - notifica faptul ca s a terminat inegistrarea
+                
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
 
+                    MainPage.ShowNotification("Recorder has stop due to an unknown problem that caused recognition or compilation to fail. You might want to restart the application." + args.Status + "**** " + m_recognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout.ToString());
+
+                });
             }
+            else if (args.Status != SpeechRecognitionResultStatus.Success)
+            {
+                m_isListening = false;
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+
+                    MainPage.ShowNotification("Recorder has stop due to its timeout settings. Start recorder again by clicking `Enable Speech Service` " + args.Status + "**** " + m_recognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout.ToString());
+                });
+            }
+
+
         }
+
         /// <summary>
         /// Handle events fired when a result is generated in the continuous recognition mode.
         /// </summary>
@@ -70,22 +124,37 @@ namespace IotUiApp
                     {
                         break;
                     }
-                    //TO DO ANCA - verifica notifica daca nu e numar valid
+                    int num;
+                    string speechResult = curentAltResult.Text.Remove(curentAltResult.Text.Length - 1);
+                    bool isNumber = Int32.TryParse(speechResult, out num);
+                    if (isNumber)
+                    {
 
-                    MainPage.setAudioTempCommand("temperature=" + curentAltResult.Text.Remove(curentAltResult.Text.Length - 1) + "\0");
+                        MainPage.setAudioTempCommand(speechResult);
+                    }
+                    else
+                    {
+                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            MainPage.ShowNotification("Your message could not be parsed as number. Please specify  a number!");
+                        });
+                    }
                     idx++;
                 }
             }
             else
             {
-                //TO DO ANCA - notifica faptul ca nu s-a inteles
+
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    MainPage.ShowNotification("Sorry, could not get that. Can you repeat?");
+                });
             }
 
         }
 
-        private static async void starListening()
+        private static void startListening()
         {
-            var recognition = new Object();
 
             if (m_isListening == false)
             {
@@ -94,7 +163,9 @@ namespace IotUiApp
 
                 try
                 {
-                    await m_recognizer.ContinuousRecognitionSession.StartAsync();
+                    Debug.WriteLine("print5");
+                    m_recognizer.ContinuousRecognitionSession.StartAsync();
+                    Debug.WriteLine("print6");
                 }
                 catch (Exception ex)
                 {
@@ -103,27 +174,84 @@ namespace IotUiApp
 
                     if (ex.HResult == privacyPolicyHResult)
                     {
-                        // User has not accepted the speech privacy policy
-                        //this.PromptForSpeechRecognitionPermission();
-                        //new MessageDialog("You will need to accept the speech privacy policy in order to use speech recognition in this app.").ShowAsync();
+                        MainPage.ShowNotification("You will need to accept the speech privacy policy in order to use speech recognition in this app. Consider activating `Get to know me` in 'Settings->Privacy->Speech, inking & typing`");
                     }
                     else if (ex.HResult == networkNotAvailable)
                     {
-                        Debug.WriteLine("bau");
+                        MainPage.ShowNotification("The network connection is not available");
                     }
-                    else
-                    {
-                        //this.Dispatcher.BeginInvoke(delegate { MessageBox.Show(ex.Message); });
+                    else {
+                        var t = ex.Message;
                     }
                 }
             }
 
         }
 
+        private static void stopListening()
+        {
+
+            m_recognizer.ContinuousRecognitionSession.CancelAsync();
+        }
+
+
         public static void startSpeechRecognitionMechanism()
         {
-            init();
-            starListening();
+
+            //init();
+            RecognizeSpeech();
+        }
+
+        public static void stopSpeechRecognitionMechanism()
+        {
+            stopListening();
+            m_isListening = false;
+        }
+
+        public static async void RecognizeSpeech()
+        {
+            SpeechRecognizer recognizer = new SpeechRecognizer();
+            SpeechRecognitionTopicConstraint topicConstraint = new SpeechRecognitionTopicConstraint(SpeechRecognitionScenario.Dictation, "Message");
+            recognizer.Constraints.Add(topicConstraint);
+            await recognizer.CompileConstraintsAsync();
+            SpeechRecognitionResult result = await recognizer.RecognizeAsync();
+            if (result.Confidence != SpeechRecognitionConfidence.Rejected)
+            {
+                var altResults = result.GetAlternates(s_maxRecognitionResultAlternates);
+                uint idx = 0;
+                foreach (var curentAltResult in altResults)
+                {
+                    if (curentAltResult.Confidence == SpeechRecognitionConfidence.Rejected)
+                    {
+                        break;
+                    }
+                    int num;
+                    string speechResult = curentAltResult.Text.Remove(curentAltResult.Text.Length - 1);
+                    bool isNumber = Int32.TryParse(speechResult, out num);
+                    if (isNumber)
+                    {
+
+                        MainPage.setAudioTempCommand(speechResult);
+                    }
+                    else
+                    {
+                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            MainPage.ShowNotification("Your message could not be parsed as number. Please specify a number!");
+                        });
+                    }
+                    idx++;
+                }
+            }
+            else
+            {
+
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    MainPage.ShowNotification("Sorry, could not get that. Can you repeat?");
+                });
+            }
+
         }
     }
 }

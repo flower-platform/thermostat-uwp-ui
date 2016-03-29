@@ -22,13 +22,13 @@
     <AppXManifest Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\Core\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2016-03-25T13:41:20.672</Modified>
+      <Modified>2016-03-29T15:55:28.586</Modified>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\IotUiApp.exe">
       <PackagePath>entrypoint\IotUiApp.exe</PackagePath>
-      <Modified>2016-03-25T13:41:20.178</Modified>
+      <Modified>2016-03-29T15:47:53.747</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\PowerUser\.nuget\packages\AMQPNetLite\1.1.2\lib\windows8\Amqp.Store.dll">
       <PackagePath>Amqp.Store.dll</PackagePath>
@@ -488,7 +488,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\Assets\views\page.html">
       <PackagePath>Assets\views\page.html</PackagePath>
-      <Modified>2016-03-24T17:09:44.826</Modified>
+      <Modified>2016-03-29T15:55:24.185</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\Properties\Default.rd.xml">
       <PackagePath>Properties\Default.rd.xml</PackagePath>
@@ -530,7 +530,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\IotUiApp.xr.xml">
       <PackagePath>IotUiApp.xr.xml</PackagePath>
-      <Modified>2016-03-23T11:19:32.618</Modified>
+      <Modified>2016-03-28T07:16:17.384</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata\Windows.winmd">
       <PackagePath>WinMetadata\Windows.winmd</PackagePath>
@@ -538,11 +538,11 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\resources.pri">
       <PackagePath>resources.pri</PackagePath>
-      <Modified>2016-03-25T13:37:57.106</Modified>
+      <Modified>2016-03-29T15:55:28.282</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\Core\IotUiApp.exe">
       <PackagePath>IotUiApp.exe</PackagePath>
-      <Modified>2016-03-25T13:41:20.669</Modified>
+      <Modified>2016-03-29T15:55:28.584</Modified>
     </AppxPackagedFile>
   </ItemGroup>
   <ItemGroup>

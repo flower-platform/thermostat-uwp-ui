@@ -1,6 +1,4 @@
-﻿
-
-using ppatierno.AzureSBLite;
+﻿using ppatierno.AzureSBLite;
 using ppatierno.AzureSBLite.Messaging;
 using System;
 using System.Text;
@@ -9,6 +7,7 @@ namespace IotUiApp
 {
     class ReadDeviceToCloud
     {
+        // Please replace the constants below, with actual values (taken from your Azure Portal)
         static string ConnectionString = "Endpoint=sb://ihsuprodamres007dednamespace.servicebus.windows.net/;SharedAccessKeyName=service;SharedAccessKey=OBd4PMq9uqDy/3w6rNob8zB+8BmC0AREbW1+l469uao=";
         static string eventHubEntity = "iothub-ehub-arduino-mk-21909-b272367e46";
  

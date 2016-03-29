@@ -8,18 +8,21 @@ namespace IotUiApp
 {
     class SendCloudToDevice
     {
+        // Please replace the constants below, with actual values (taken from your Azure Portal)
         private const string HOST = "arduino-mkr1000.azure-devices.net";
-        private const int PORT = 5671;
         private const string DEVICE_ID = "mkr1000";
         private const string DEVICE_KEY = "H3pZf6Y3MtKqJ1u5zQarKQ==";
+        static string sharedAccessKeyName = "iothubowner";
+        static string sharedAccessKey = "atQwsAzJOGBo6A1tV2ZN55BizfzPVRv2ZIc1XmSN3Lo=";
+
+        private const int PORT = 5671;
         private static Address address = new Address(HOST, PORT, null, null);
         private static Connection connection = new Connection(address);
         string audience = Fx.Format("{0}/devices/{1}", HOST, DEVICE_ID);
         string resourceUri = Fx.Format("{0}/devices/{1}", HOST, DEVICE_ID);
         static DateTime startingDateTimeUtc;
         static Session session = new Session(connection);
-        static string sharedAccessKeyName = "iothubowner";
-        static string sharedAccessKey = "atQwsAzJOGBo6A1tV2ZN55BizfzPVRv2ZIc1XmSN3Lo=";
+
 
 
         //source: https://github.com/ppatierno/codesamples/blob/master/IoTHubAmqp/IoTHubAmqpService/Program.cs

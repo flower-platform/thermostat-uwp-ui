@@ -4,6 +4,7 @@
 <head>
     <title>Title</title>
     <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="http://bootswatch.com/paper/bootstrap.min.css">
@@ -19,24 +20,35 @@
 		}
 		input {
 			resize: horizontal;
-            font-family: serif;
             text-align: center;
 		}
     </style>
     <script type="text/javascript">
-        function updateValues(temperature, humidity, timestamp) {
+        var modifiedByUser = false;
+        function updateValues(temperature, presetTemperature, humidity, timestamp) {
             console.log(timestamp);
             document.getElementById('temperatureId').innerText = temperature;
             document.getElementById('humidityId').innerText = humidity;
+            if(!modifiedByUser) document.getElementById('setTempId').innerText = presetTemperature;
             updateStatusReceivedTimestamp(timestamp);
 
         }
 
-        function setTemperature() {
+        function setTemperatureNoParam() {
+            modifiedByUser = true;
             window.external.notify("temperature=" + document.getElementById('setTempId').value + "\0");
+        }
+        function setTemperature(value) {
+            modifiedByUser = true;
+            $("#buttonTemp").effect("bounce", { times: 1 }, 50);
+            document.getElementById('setTempId').innerText = value;
+            window.external.notify("temperature=" + value + "\0");
         }
         function enableSpeechService(){
             window.external.notify("enable_speech");
+        }
+        function disableSpeechService() {
+            window.external.notify("disable_speech");
         }
         function modifyTempInput(mode) {
             var tempInput = document.getElementById('setTempId').value;
@@ -85,15 +97,15 @@
                         <br />
                         <div class="row">
                             <div class="col-md-6 col-md-offset-3 col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 input-group input-group-sm ">
-                                <span onclick="modifyTempInput('plus')" style="cursor: pointer; border: 2px solid #8585ad;" class="glyphicon glyphicon-plus input-group-addon"></span>
-                                <input style="font-size: x-large; background-color: lightyellow;" type="text" id="setTempId" class="form-control" aria-label="Temperature value">
                                 <span onclick="modifyTempInput('minus')" class=" glyphicon glyphicon-minus input-group-addon" style="cursor: pointer; border: 2px solid #8585ad;"></span>
+                                <input style="font-size: x-large; background-color: lightyellow;" type="text" id="setTempId" class="form-control" aria-label="Temperature value">
+                                <span onclick="modifyTempInput('plus')" style="cursor: pointer; border: 2px solid #8585ad;" class="glyphicon glyphicon-plus input-group-addon"></span>
                             </div>
                         </div>
                         <div class="row">
                             <br />
                             <div class="col-md-4 col-md-offset-4">
-                                <a class="btn btn-primary btn-lg btn-responsive" onclick="setTemperature()">Set temperature</a>
+                                <button class="btn btn-primary btn-lg btn-responsive" id="buttonTemp" onclick="setTemperatureNoParam()">Set temperature</button>
                             </div>
                         </div>
                         <br />
@@ -110,7 +122,8 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" onclick="enableSpeechService()" class="btn btn-default">Enable Speech Service</button>
+                <button type="button" style="float: left" onclick="enableSpeechService()" class="btn btn-default">Speak command</button>
+                <!--<button type="button" style="float: right" onclick="disableSpeechService()" class="btn btn-default">Disable Speech Service</button>-->
             </div>
         </div>
     </div>

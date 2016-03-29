@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using System.ComponentModel;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
+using Windows.UI.Popups;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -46,19 +47,23 @@ namespace IotUiApp
         }
 
 
-
+        
         void LoadCompleted(object sender, NavigationEventArgs e)
         {
-            BackgroundWorker bw = new BackgroundWorker();
+            //when load completed run some tasks in background
             RunBackgroundTaskWithParam("1", UpdateValuesFromPartitionTask, DoesNothing);
-            RunBackgroundTaskWithParam("2", UpdateValuesFromPartitionTask, DoesNothing);
+            RunBackgroundTaskWithParam("0", UpdateValuesFromPartitionTask, DoesNothing);
             RunBackgroundTask(CheckAudioTemperatureCommandTask);
 
         }
 
+        /*
+            invoked when javascript invokes C#            
+        */
         async void webView_ScriptNotify(object sender, NotifyEventArgs e)
         {
             string value = e.Value;
+            //invokes corresponding process depending on what value is sent by javascript
             if (value.Contains("temperature="))
             {
                 var tempValueCommand = value;
@@ -66,6 +71,10 @@ namespace IotUiApp
             }else if(value == "enable_speech")
             {
                 SpeechRecognitionEngine.startSpeechRecognitionMechanism();
+            }
+            else if (value == "disable_speech")
+            {
+                SpeechRecognitionEngine.stopSpeechRecognitionMechanism();
             }
 
         }
@@ -75,9 +84,10 @@ namespace IotUiApp
 
         }
 
-
+        
         public void InvokeJSScript(string scriptName, string[] parameters)
         {
+            //retrieves the UI thread and invokes javascript on this thread
             CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 MyWebView.InvokeScriptAsync(scriptName, parameters);
@@ -113,8 +123,7 @@ namespace IotUiApp
                 task(param);
 
             });
-            //when worker completes its task notify user inerface by invoking a javascript 
-            //method that updates command timestamp in the ui
+            //when worker completes its task execute completed function
             bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(
             delegate (object o, RunWorkerCompletedEventArgs args)
             {
@@ -124,21 +133,22 @@ namespace IotUiApp
         }
 
 
-
-
-
         public void DoesNothing()
         {
 
         }
 
+        /*
+            Continuous checks if an audio command was sent and
+            if it was, invokes the send command mechanism.
+        */
         public void CheckAudioTemperatureCommandTask()
         {
             while (true)
             {
                 if (audioTempCommand != null)
                 {
-                    SendCommandMechanism(audioTempCommand);
+                    InvokeJSScript("setTemperature", new string[] { audioTempCommand});
                     audioTempCommand = null;
                 }
             }
@@ -147,22 +157,34 @@ namespace IotUiApp
         {
             InvokeJSScript("updateCommandTimestamp", new string[] { DateTime.Now.ToString("HH:mm:ss") });
         }
-
+        /*
+             Queries one of the event hub endpoint partition and updates the WebView with the values received
+        */
         public void UpdateValuesFromPartitionTask(string partition)
         {
-            string message = ReadDeviceToCloud.getMessage(partition);
-            ReceivedData receivedData;
-            if (message != null)
+
+            while (true)
             {
-                receivedData = JsonConvert.DeserializeObject<ReceivedData>(message);
-                InvokeJSScript("updateValues", new string[] { receivedData.temperature.ToString(), receivedData.humidity.ToString(), DateTime.Now.ToString("HH:mm:ss") });
-                Debug.WriteLine("{0}  {1}  {2}", receivedData.heater, receivedData.temperature, receivedData.humidity);
+                string message = ReadDeviceToCloud.getMessage(partition);
+                ReceivedData receivedData;
+                if (message != null)
+                {
+                    receivedData = JsonConvert.DeserializeObject<ReceivedData>(message);
+                    InvokeJSScript("updateValues", new string[] { receivedData.temperature.ToString(), receivedData.presetTemperature.ToString(), receivedData.humidity.ToString(), DateTime.Now.ToString("HH:mm:ss") });
+                    Debug.WriteLine("{0}  {1}  {2}", receivedData.heater, receivedData.temperature, receivedData.humidity);
+                }
             }
         }
 
         public static void setAudioTempCommand(string command)
         {
             audioTempCommand = command;
+        }
+
+        public static void ShowNotification(string notification)
+        {
+            MessageDialog msg = new MessageDialog(notification);
+            msg.ShowAsync();
         }
     }
 }
