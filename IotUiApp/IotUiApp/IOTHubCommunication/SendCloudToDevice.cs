@@ -3,6 +3,7 @@ using Amqp.Framing;
 using ppatierno.AzureSBLite.Utility;
 using System;
 using System.Text;
+using IotUiApp.Utils;
 
 namespace IotUiApp
 {
@@ -18,15 +19,15 @@ namespace IotUiApp
         private const int PORT = 5671;
         private static Address address = new Address(HOST, PORT, null, null);
         private static Connection connection = new Connection(address);
-        string audience = Fx.Format("{0}/devices/{1}", HOST, DEVICE_ID);
-        string resourceUri = Fx.Format("{0}/devices/{1}", HOST, DEVICE_ID);
-        static DateTime startingDateTimeUtc;
-        static Session session = new Session(connection);
+        private string audience = Fx.Format("{0}/devices/{1}", HOST, DEVICE_ID);
+        private string resourceUri = Fx.Format("{0}/devices/{1}", HOST, DEVICE_ID);
+        private static DateTime startingDateTimeUtc;
+        private static Session session = new Session(connection);
 
 
 
         //source: https://github.com/ppatierno/codesamples/blob/master/IoTHubAmqp/IoTHubAmqpService/Program.cs
-        static bool PutCbsToken(Connection connection, string host, string shareAccessSignature, string audience)
+        static private  bool PutCbsToken(Connection connection, string host, string shareAccessSignature, string audience)
         {
             bool result = true;
             Session session = new Session(connection);

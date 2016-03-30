@@ -98,16 +98,18 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AudioCapturePermission.cs" />
-    <Compile Include="HttpUtility.cs" />
+    <Compile Include="SpeechRecognition\ContinuousSpeechRecognitionEngine.cs" />
+    <Compile Include="SpeechRecognition\SpeechRecognitionEngine.cs" />
+    <Compile Include="Utils\HttpUtility.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadDeviceToCloud.cs" />
-    <Compile Include="ReceivedData.cs" />
-    <Compile Include="SendCloudToDevice.cs" />
-    <Compile Include="SpeechRecognitionEngine.cs" />
+    <Compile Include="IOTHubCommunication\ReadDeviceToCloud.cs" />
+    <Compile Include="IOTHubCommunication\ReceivedData.cs" />
+    <Compile Include="IOTHubCommunication\SendCloudToDevice.cs" />
+    <Compile Include="Utils\BackgroundTaskUtils.cs" />
+    <Compile Include="Utils\UiUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

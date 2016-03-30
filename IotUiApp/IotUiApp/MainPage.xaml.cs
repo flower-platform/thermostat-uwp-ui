@@ -19,11 +19,11 @@ using System.Diagnostics;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Newtonsoft.Json;
-using System.ComponentModel;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
-using Windows.UI.Popups;
-
+using IotUiApp.Utils;
+using IotUiApp.IOTHubCommunication;
+using IotUiApp.SpeechRecognition;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -37,7 +37,7 @@ namespace IotUiApp
         public MainPage()
         {
             this.InitializeComponent();
-            MyWebView.ScriptNotify += webView_ScriptNotify;
+            MyWebView.ScriptNotify += WebView_ScriptNotify;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -45,47 +45,44 @@ namespace IotUiApp
             Uri u = new Uri("ms-appx-web:///Assets/views/page.html");
             MyWebView.Navigate(u);
         }
-
-
         
         void LoadCompleted(object sender, NavigationEventArgs e)
         {
             //when load completed run some tasks in background
-            RunBackgroundTaskWithParam("1", UpdateValuesFromPartitionTask, DoesNothing);
-            RunBackgroundTaskWithParam("0", UpdateValuesFromPartitionTask, DoesNothing);
-            RunBackgroundTask(CheckAudioTemperatureCommandTask);
+
+            BackgroundTaskUtils.RunBackgroundTaskWithParam("1", UpdateValuesFromPartitionTask, DoesNothing);
+            BackgroundTaskUtils.RunBackgroundTaskWithParam("0", UpdateValuesFromPartitionTask, DoesNothing);
+            BackgroundTaskUtils.RunBackgroundTask(CheckAudioTemperatureCommandTask);
 
         }
 
         /*
             invoked when javascript invokes C#            
         */
-        async void webView_ScriptNotify(object sender, NotifyEventArgs e)
+        async void WebView_ScriptNotify(object sender, NotifyEventArgs e)
         {
             string value = e.Value;
             //invokes corresponding process depending on what value is sent by javascript
             if (value.Contains("temperature="))
             {
                 var tempValueCommand = value;
-                SendCommandMechanism(tempValueCommand);
-            }else if(value == "enable_speech")
+                BackgroundTaskUtils.RunBackgroundTaskWithParam(tempValueCommand, SendCloudToDevice.SendCommand, UpdateCommandTimestampTask);
+            }
+            else if(value == "enable_speech")
             {
-                SpeechRecognitionEngine.StartSpeechRecognitionMechanism();
+                SpeechRecognitionEngine.RecognizeSpeech();
+                //uncomment row below and comment row above for continuous speech mechanism
+                //ContinuousSpeechRecognitionEngine.InitContinuousSpeechRecognition();
             }
             else if (value == "disable_speech")
             {
-                SpeechRecognitionEngine.StopSpeechRecognitionMechanism();
+                ContinuousSpeechRecognitionEngine.StopSpeechRecognitionMechanism();
             }
-
-        }
-        public void SendCommandMechanism(string tempValueCommand)
-        {
-            RunBackgroundTaskWithParam(tempValueCommand, SendCloudToDevice.SendCommand, UpdateCommandTimestampTask);
 
         }
 
         
-        public void InvokeJSScript(string scriptName, string[] parameters)
+        public  void InvokeJSScript(string scriptName, string[] parameters)
         {
             //retrieves the UI thread and invokes javascript on this thread
             CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -94,44 +91,7 @@ namespace IotUiApp
             });
 
         }
-
-        public delegate void MyTask();
-        public delegate void MyTaskWithParam(string param);
-
-        public void RunBackgroundTask(MyTask task)
-        {
-            BackgroundWorker bw = new BackgroundWorker();
-
-            // send task and process it in background
-            bw.DoWork += new DoWorkEventHandler(
-            delegate (object o, DoWorkEventArgs args)
-            {
-                task();
-
-            });
-            bw.RunWorkerAsync();
-        }
-
-        public void RunBackgroundTaskWithParam(string param, MyTaskWithParam task, MyTask completed)
-        {
-            BackgroundWorker bw = new BackgroundWorker();
-
-            // send task and process it in background
-            bw.DoWork += new DoWorkEventHandler(
-            delegate (object o, DoWorkEventArgs args)
-            {
-                task(param);
-
-            });
-            //when worker completes its task execute completed function
-            bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(
-            delegate (object o, RunWorkerCompletedEventArgs args)
-            {
-                completed();
-            });
-            bw.RunWorkerAsync();
-        }
-
+ 
 
         public void DoesNothing()
         {
@@ -181,10 +141,5 @@ namespace IotUiApp
             audioTempCommand = command;
         }
 
-        public static void ShowNotification(string notification)
-        {
-            MessageDialog msg = new MessageDialog(notification);
-            msg.ShowAsync();
-        }
     }
 }

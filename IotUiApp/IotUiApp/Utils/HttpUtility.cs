@@ -5,7 +5,7 @@
 using System;
 using System.Text;
 
-namespace IotUiApp
+namespace IotUiApp.Utils
 {
 
     class HttpUtility

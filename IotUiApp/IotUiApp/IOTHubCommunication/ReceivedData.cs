@@ -14,7 +14,7 @@
  * license-end
  */
 
-namespace IotUiApp
+namespace IotUiApp.IOTHubCommunication
 {
     /// <summary>
     /// Class that has the structure of a received message. It is used in the process of deserializing the message.

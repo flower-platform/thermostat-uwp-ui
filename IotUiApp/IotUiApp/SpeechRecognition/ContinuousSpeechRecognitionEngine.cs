@@ -1,36 +1,12 @@
-﻿/* license-start
- * 
- * Copyright (C) 2008 - 2015 Crispico Resonate, <http://www.crispico.com/>.
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation version 3.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details, at <http://www.gnu.org/licenses/>.
- * 
- * license-end
- */
-
+﻿using IotUiApp.Utils;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using Windows.Foundation;
 using Windows.Media.SpeechRecognition;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Windows.Media.SpeechSynthesis;
-using System.Diagnostics;
-using Windows.ApplicationModel.Core;
-using Windows.UI.Core;
 
-namespace IotUiApp
+namespace IotUiApp.SpeechRecognition
 {
-    class SpeechRecognitionEngine
+    class ContinuousSpeechRecognitionEngine
     {
         private static SpeechRecognizer m_recognizer;
         // Keep track of whether the recognizer is currently listening for user input
@@ -41,7 +17,7 @@ namespace IotUiApp
         /*
             Starts continuous recognition sessions for prolonged audio input from the user
         */
-        private static void InitContinuousSpeechRecognition()
+        public static void InitContinuousSpeechRecognition()
         {
             m_recognizer = new SpeechRecognizer();
             m_recognizer.Timeouts.BabbleTimeout = System.TimeSpan.FromSeconds(120.0);
@@ -89,22 +65,12 @@ namespace IotUiApp
             if (args.Status == SpeechRecognitionResultStatus.Unknown)
             {
                 m_isListening = false;
-
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-
-                    MainPage.ShowNotification("Recorder has stop due to an unknown problem that caused recognition or compilation to fail. You might want to restart the application." + args.Status + "**** " + m_recognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout.ToString());
-
-                });
+                UiUtils.ShowNotification("Recorder has stop due to an unknown problem that caused recognition or compilation to fail.You might want to restart the application." + args.Status + " * ***" + m_recognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout.ToString());
             }
             else if (args.Status != SpeechRecognitionResultStatus.Success)
             {
                 m_isListening = false;
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-
-                    MainPage.ShowNotification("Recorder has stop due to its timeout settings. Start recorder again by clicking `Enable Speech Service` " + args.Status + "**** " + m_recognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout.ToString());
-                });
+                UiUtils.ShowNotification("Recorder has stop due to its timeout settings.Start recorder again by clicking `Enable Speech Service` " + args.Status + " * ***" + m_recognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout.ToString());
             }
 
 
@@ -138,21 +104,14 @@ namespace IotUiApp
                     }
                     else
                     {
-                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            MainPage.ShowNotification("Your message could not be parsed as number. Please specify  a number!");
-                        });
+                        UiUtils.ShowNotification("Your message could not be parsed as number. Please specify a number!");
                     }
                     idx++;
                 }
             }
             else
             {
-
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    MainPage.ShowNotification("Sorry, could not get that. Can you repeat?");
-                });
+                UiUtils.ShowNotification("Sorry, could not get that. Can you repeat?");
             }
 
         }
@@ -178,11 +137,13 @@ namespace IotUiApp
 
                     if (ex.HResult == privacyPolicyHResult)
                     {
-                        MainPage.ShowNotification("You will need to accept the speech privacy policy in order to use speech recognition in this app. Consider activating `Get to know me` in 'Settings->Privacy->Speech, inking & typing`");
+                        UiUtils.ShowNotification("You will need to accept the speech privacy policy in order to use speech recognition in this app. Consider activating `Get to know me` in 'Settings->Privacy->Speech, inking & typing`");
+
+                        //MainPage.ShowNotification("You will need to accept the speech privacy policy in order to use speech recognition in this app. Consider activating `Get to know me` in 'Settings->Privacy->Speech, inking & typing`");
                     }
                     else if (ex.HResult == networkNotAvailable)
                     {
-                        MainPage.ShowNotification("The network connection is not available");
+                        UiUtils.ShowNotification("The network connection is not available");
                     }
                     else {
                         var t = ex.Message;
@@ -192,78 +153,10 @@ namespace IotUiApp
 
         }
 
-        private static void StopListening()
-        {
-
-            m_recognizer.ContinuousRecognitionSession.CancelAsync();
-        }
-
-
-        public static void StartSpeechRecognitionMechanism()
-        {
-
-            //InitContinuousSpeechRecognition();
-
-            RecognizeSpeech();
-        }
-
         public static void StopSpeechRecognitionMechanism()
         {
-            StopListening();
+            m_recognizer.ContinuousRecognitionSession.CancelAsync();
             m_isListening = false;
         }
-
-        /*
-            Speech recognition session for recognizing a short phrase.
-        */
-        public static async void RecognizeSpeech()
-        {
-            SpeechRecognizer recognizer = new SpeechRecognizer();
-            recognizer.Timeouts.BabbleTimeout = System.TimeSpan.FromSeconds(120.0);
-            recognizer.Timeouts.EndSilenceTimeout = System.TimeSpan.FromSeconds(120.0);
-            recognizer.Timeouts.InitialSilenceTimeout = System.TimeSpan.FromSeconds(120.0);
-            SpeechRecognitionTopicConstraint topicConstraint = new SpeechRecognitionTopicConstraint(SpeechRecognitionScenario.Dictation, "Message");
-            recognizer.Constraints.Add(topicConstraint);
-            await recognizer.CompileConstraintsAsync();
-            SpeechRecognitionResult result = await recognizer.RecognizeAsync();
-            if (result.Confidence != SpeechRecognitionConfidence.Rejected)
-            {
-
-                if (result.Text != "")
-                {
-                    string speechResult = result.Text.Remove(result.Text.Length - 1);
-                    int num;
-                    bool isNumber = Int32.TryParse(speechResult, out num);
-                    if (isNumber)
-                    {
-
-                        MainPage.SetAudioTempCommand(speechResult);
-                    }
-                    else
-                    {
-                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            MainPage.ShowNotification("Your message could not be parsed as number. Please specify a number!");
-                        });
-                    }
-                }
-                else
-                {
-                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        MainPage.ShowNotification("Your message could not be parsed. Please repeat!");
-                    });
-                }
-            }
-            else
-            {
-
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    MainPage.ShowNotification("Sorry, could not get that. Can you repeat?");
-                });
-            }
-        }
-
     }
 }

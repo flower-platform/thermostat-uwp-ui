@@ -22,13 +22,13 @@
     <AppXManifest Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\Core\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2016-03-30T07:37:38.790</Modified>
+      <Modified>2016-03-30T10:28:17.400</Modified>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\IotUiApp.exe">
       <PackagePath>entrypoint\IotUiApp.exe</PackagePath>
-      <Modified>2016-03-30T07:37:37.855</Modified>
+      <Modified>2016-03-30T10:28:16.173</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\PowerUser\.nuget\packages\AMQPNetLite\1.1.2\lib\windows8\Amqp.Store.dll">
       <PackagePath>Amqp.Store.dll</PackagePath>
@@ -534,15 +534,15 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata\Windows.winmd">
       <PackagePath>WinMetadata\Windows.winmd</PackagePath>
-      <Modified>2016-03-15T14:11:04.456</Modified>
+      <Modified>2016-03-30T08:57:17.705</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\resources.pri">
       <PackagePath>resources.pri</PackagePath>
-      <Modified>2016-03-30T07:37:38.514</Modified>
+      <Modified>2016-03-30T10:28:17.086</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\test workspace\IotUiApp\IotUiApp\bin\x86\Debug\Core\IotUiApp.exe">
       <PackagePath>IotUiApp.exe</PackagePath>
-      <Modified>2016-03-30T07:37:38.788</Modified>
+      <Modified>2016-03-30T10:28:17.396</Modified>
     </AppxPackagedFile>
   </ItemGroup>
   <ItemGroup>
