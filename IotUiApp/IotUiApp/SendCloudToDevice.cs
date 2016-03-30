@@ -108,7 +108,7 @@ namespace IotUiApp
         }
 
         //code adapted from tutorial https://paolopatierno.wordpress.com/2015/10/31/azure-iot-hub-commands-and-feedback-using-amqp-net-lite/
-        public static void sendCommand(string command)
+        public static void SendCommand(string command)
         {
 
             string audience = Fx.Format("{0}/messages/devicebound", HOST);

@@ -209,3 +209,11 @@ C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\Amqp.Store\en-US\Amqp.SRAmqp.r
 C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\Amqp.Store.pri.xml
 C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\AzureSBLite.WinRT.pri.xml
 C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\IotUiApp.csprojResolveAssemblyReference.cache
+C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\System.Net.Http.Formatting\layout.resfiles
+C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\System.Net.Http.Formatting\layout.resfiles.intermediate
+C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\System.Net.Http.Formatting\Resources.resfiles
+C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\System.Net.Http.Formatting\Resources.resfiles.intermediate
+C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\System.Net.Http.Formatting\pri.resfiles
+C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\System.Net.Http.Formatting\pri.resfiles.intermediate
+C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\System.Net.Http.Formatting\priconfig.xml
+C:\test workspace\IotUiApp\IotUiApp\obj\x86\Debug\System.Net.Http.Formatting\priconfig.xml.intermediate

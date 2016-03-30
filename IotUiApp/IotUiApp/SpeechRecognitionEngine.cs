@@ -37,7 +37,11 @@ namespace IotUiApp
         private static bool m_isListening = false;
         private static int s_continuousRecognitionAutoStopSilenceTimeout = 100;
         private static uint s_maxRecognitionResultAlternates = 3;
-        private static void init()
+
+        /*
+            Starts continuous recognition sessions for prolonged audio input from the user
+        */
+        private static void InitContinuousSpeechRecognition()
         {
             m_recognizer = new SpeechRecognizer();
             m_recognizer.Timeouts.BabbleTimeout = System.TimeSpan.FromSeconds(120.0);
@@ -67,7 +71,7 @@ namespace IotUiApp
             m_recognizer.ContinuousRecognitionSession.Completed += OnContinuousRecognitionSessionCompletedHandler;
             m_recognizer.ContinuousRecognitionSession.ResultGenerated += OnContinuousRecognitionSessionResultGeneratedHandler;
 
-            startListening();
+            StartListening();
             Debug.WriteLine("print4");
         }
 
@@ -85,7 +89,7 @@ namespace IotUiApp
             if (args.Status == SpeechRecognitionResultStatus.Unknown)
             {
                 m_isListening = false;
-                
+
                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
 
@@ -130,7 +134,7 @@ namespace IotUiApp
                     if (isNumber)
                     {
 
-                        MainPage.setAudioTempCommand(speechResult);
+                        MainPage.SetAudioTempCommand(speechResult);
                     }
                     else
                     {
@@ -153,7 +157,7 @@ namespace IotUiApp
 
         }
 
-        private static void startListening()
+        private static void StartListening()
         {
 
             if (m_isListening == false)
@@ -188,50 +192,52 @@ namespace IotUiApp
 
         }
 
-        private static void stopListening()
+        private static void StopListening()
         {
 
             m_recognizer.ContinuousRecognitionSession.CancelAsync();
         }
 
 
-        public static void startSpeechRecognitionMechanism()
+        public static void StartSpeechRecognitionMechanism()
         {
 
-            //init();
+            //InitContinuousSpeechRecognition();
+
             RecognizeSpeech();
         }
 
-        public static void stopSpeechRecognitionMechanism()
+        public static void StopSpeechRecognitionMechanism()
         {
-            stopListening();
+            StopListening();
             m_isListening = false;
         }
 
+        /*
+            Speech recognition session for recognizing a short phrase.
+        */
         public static async void RecognizeSpeech()
         {
             SpeechRecognizer recognizer = new SpeechRecognizer();
+            recognizer.Timeouts.BabbleTimeout = System.TimeSpan.FromSeconds(120.0);
+            recognizer.Timeouts.EndSilenceTimeout = System.TimeSpan.FromSeconds(120.0);
+            recognizer.Timeouts.InitialSilenceTimeout = System.TimeSpan.FromSeconds(120.0);
             SpeechRecognitionTopicConstraint topicConstraint = new SpeechRecognitionTopicConstraint(SpeechRecognitionScenario.Dictation, "Message");
             recognizer.Constraints.Add(topicConstraint);
             await recognizer.CompileConstraintsAsync();
             SpeechRecognitionResult result = await recognizer.RecognizeAsync();
             if (result.Confidence != SpeechRecognitionConfidence.Rejected)
             {
-                var altResults = result.GetAlternates(s_maxRecognitionResultAlternates);
-                uint idx = 0;
-                foreach (var curentAltResult in altResults)
+
+                if (result.Text != "")
                 {
-                    if (curentAltResult.Confidence == SpeechRecognitionConfidence.Rejected)
-                    {
-                        break;
-                    }
+                    string speechResult = result.Text.Remove(result.Text.Length - 1);
                     int num;
-                    string speechResult = curentAltResult.Text.Remove(curentAltResult.Text.Length - 1);
                     bool isNumber = Int32.TryParse(speechResult, out num);
                     if (isNumber)
                     {
 
-                        MainPage.setAudioTempCommand(speechResult);
+                        MainPage.SetAudioTempCommand(speechResult);
                     }
                     else
                     {
@@ -240,7 +246,13 @@ namespace IotUiApp
                             MainPage.ShowNotification("Your message could not be parsed as number. Please specify a number!");
                         });
                     }
-                    idx++;
+                }
+                else
+                {
+                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        MainPage.ShowNotification("Your message could not be parsed. Please repeat!");
+                    });
                 }
             }
             else
@@ -251,7 +263,7 @@ namespace IotUiApp
                     MainPage.ShowNotification("Sorry, could not get that. Can you repeat?");
                 });
             }
-
         }
+
     }
 }

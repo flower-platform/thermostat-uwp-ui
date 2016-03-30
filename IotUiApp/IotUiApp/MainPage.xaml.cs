@@ -70,17 +70,17 @@ namespace IotUiApp
                 SendCommandMechanism(tempValueCommand);
             }else if(value == "enable_speech")
             {
-                SpeechRecognitionEngine.startSpeechRecognitionMechanism();
+                SpeechRecognitionEngine.StartSpeechRecognitionMechanism();
             }
             else if (value == "disable_speech")
             {
-                SpeechRecognitionEngine.stopSpeechRecognitionMechanism();
+                SpeechRecognitionEngine.StopSpeechRecognitionMechanism();
             }
 
         }
         public void SendCommandMechanism(string tempValueCommand)
         {
-            RunBackgroundTaskWithParam(tempValueCommand, SendCloudToDevice.sendCommand, UpdateCommandTimestampTask);
+            RunBackgroundTaskWithParam(tempValueCommand, SendCloudToDevice.SendCommand, UpdateCommandTimestampTask);
 
         }
 
@@ -165,7 +165,7 @@ namespace IotUiApp
 
             while (true)
             {
-                string message = ReadDeviceToCloud.getMessage(partition);
+                string message = ReadDeviceToCloud.GetMessage(partition);
                 ReceivedData receivedData;
                 if (message != null)
                 {
@@ -176,7 +176,7 @@ namespace IotUiApp
             }
         }
 
-        public static void setAudioTempCommand(string command)
+        public static void SetAudioTempCommand(string command)
         {
             audioTempCommand = command;
         }

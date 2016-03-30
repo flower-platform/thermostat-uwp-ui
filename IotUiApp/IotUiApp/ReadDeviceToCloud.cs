@@ -12,7 +12,7 @@ namespace IotUiApp
         static string eventHubEntity = "iothub-ehub-arduino-mk-21909-b272367e46";
  
         //code adapted from tutorial https://paolopatierno.wordpress.com/2015/11/02/azure-iot-hub-get-telemetry-data-using-amqp-stack-and-azure-sb-lite/ 
-        public static string getMessage(string partitionId)
+        public static string GetMessage(string partitionId)
         {
             string result = null;
             ServiceBusConnectionStringBuilder builder = new ServiceBusConnectionStringBuilder(ConnectionString);
