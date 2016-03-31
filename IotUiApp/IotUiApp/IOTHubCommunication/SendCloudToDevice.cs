@@ -9,12 +9,12 @@ namespace IotUiApp
 {
     class SendCloudToDevice
     {
-        // Please replace the constants below, with actual values (taken from your Azure Portal)
-        private const string HOST = "arduino-mkr1000.azure-devices.net";
-        private const string DEVICE_ID = "mkr1000";
-        private const string DEVICE_KEY = "H3pZf6Y3MtKqJ1u5zQarKQ==";
-        static string sharedAccessKeyName = "iothubowner";
-        static string sharedAccessKey = "atQwsAzJOGBo6A1tV2ZN55BizfzPVRv2ZIc1XmSN3Lo=";
+        // CHANGE ME: Please replace the constants below, with actual values (taken from your Azure Portal)
+        private const string HOST = "???.azure-devices.net";
+        private const string DEVICE_ID = "???";
+        private const string DEVICE_KEY = "???";
+        static string sharedAccessKeyName = "???";
+        static string sharedAccessKey = "???";
 
         private const int PORT = 5671;
         private static Address address = new Address(HOST, PORT, null, null);
